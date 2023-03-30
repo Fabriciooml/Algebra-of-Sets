@@ -60,15 +60,15 @@ fn dont_contains(set: IndexSet<i32>, set_to_compare: IndexSet<i32>) -> bool {
   !contains(set, set_to_compare) 
 }
 
-fn contains_properly(set: IndexSet<i32>, set_to_compare: IndexSet<i32>) -> bool {
+fn properly_contains(set: IndexSet<i32>, set_to_compare: IndexSet<i32>) -> bool {
   if contains(set.clone(), set_to_compare.clone()) && set.len() > set_to_compare.len(){
       return true;
   } 
   false
 }
 
-fn dont_contains_properly(set: IndexSet<i32>, set_to_compare: IndexSet<i32>) -> bool {
-  !contains_properly(set, set_to_compare) 
+fn dont_properly_contains(set: IndexSet<i32>, set_to_compare: IndexSet<i32>) -> bool {
+  !properly_contains(set, set_to_compare) 
 }
 
 fn testing(mut sets_vector: Vec<IndexSet<i32>>) {
@@ -86,11 +86,11 @@ fn testing(mut sets_vector: Vec<IndexSet<i32>>) {
       first_set.clone(),
       second_set.clone()
   ));
-  println!("first set contains properly the second one? {}", contains_properly(
+  println!("first set contains properly the second one? {}", properly_contains(
       first_set.clone(),
       second_set.clone()
   ));
-  println!("first set NÃO contains properly the second one? {}", dont_contains_properly(
+  println!("first set NÃO contains properly the second one? {}", dont_properly_contains(
       first_set.clone(),
       second_set.clone()
   ));
