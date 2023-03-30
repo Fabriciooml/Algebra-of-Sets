@@ -7,7 +7,7 @@
 - [x] Don't contains or equal
 - [x] Properly contains
 - [x] Don't properly contains
-- [ ] Union
+- [x] Union
 - [ ] Intersection
 - [ ] Set difference
 - [ ] Cartesian product

@@ -71,6 +71,14 @@ fn dont_properly_contains(set: IndexSet<i32>, set_to_compare: IndexSet<i32>) -> 
   !properly_contains(set, set_to_compare) 
 }
 
+fn union(mut set: IndexSet<i32>, mut set_to_union: IndexSet<i32>) -> IndexSet<i32> {
+  for _i in 0..set_to_union.len(){
+      let a = set_to_union.pop().expect("set is empty");
+      set.insert(a);
+  }
+  set
+}
+
 fn testing(mut sets_vector: Vec<IndexSet<i32>>) {
   let second_set = sets_vector.clone().into_iter().nth(1).expect("no set on this position");
   let first_set = sets_vector.clone().into_iter().nth(0).expect("no set on this position");
@@ -94,6 +102,11 @@ fn testing(mut sets_vector: Vec<IndexSet<i32>>) {
       first_set.clone(),
       second_set.clone()
   ));
+  sets_vector.push(
+    union(
+      first_set.clone(),
+      second_set.clone()
+));
 }
 
 fn main() {
