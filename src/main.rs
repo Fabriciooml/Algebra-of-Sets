@@ -79,6 +79,20 @@ fn union(mut set: IndexSet<i32>, mut set_to_union: IndexSet<i32>) -> IndexSet<i3
   set
 }
 
+fn intersection(set: IndexSet<i32>, set_to_intersect: IndexSet<i32>) -> IndexSet<i32> {
+  let mut intersected:IndexSet<i32> = IndexSet::new();
+  for i in 0..set.len(){
+      for j in 0..set_to_intersect.len() {
+          let value_first_set = *set.get_index(i).expect("no value on position");
+          let value_second_set = *set_to_intersect.get_index(j).expect("no value on position");
+          if value_first_set == value_second_set {
+              intersected.insert(value_first_set);
+          }
+      }
+  }
+  intersected
+}
+
 fn testing(mut sets_vector: Vec<IndexSet<i32>>) {
   let second_set = sets_vector.clone().into_iter().nth(1).expect("no set on this position");
   let first_set = sets_vector.clone().into_iter().nth(0).expect("no set on this position");
@@ -107,6 +121,17 @@ fn testing(mut sets_vector: Vec<IndexSet<i32>>) {
       first_set.clone(),
       second_set.clone()
 ));
+
+println!("{:?}", sets_vector);
+
+sets_vector.push(
+    intersection(
+      first_set.clone(),
+      second_set.clone()
+));
+
+println!("{:?}", sets_vector);
+
 }
 
 fn main() {

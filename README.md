@@ -8,7 +8,7 @@
 - [x] Properly contains
 - [x] Don't properly contains
 - [x] Union
-- [ ] Intersection
+- [x] Intersection
 - [ ] Set difference
 - [ ] Cartesian product
 - [ ] Revert cartesian product
