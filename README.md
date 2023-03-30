@@ -5,8 +5,8 @@
 - [x] Don't belongs
 - [x] Contains or equal
 - [x] Don't contains or equal
-- [ ] Properly contains
-- [ ] Don't properly contains
+- [x] Properly contains
+- [x] Don't properly contains
 - [ ] Union
 - [ ] Intersection
 - [ ] Set difference
