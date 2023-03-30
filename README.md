@@ -15,5 +15,5 @@
 - [ ] Set of parts
 - [ ] Revert set of parts
 ## Features TODO list
-- [ ] Read sets from file
+- [x] Read sets from file
 - [ ] Create user interface
