@@ -1,5 +1,10 @@
 # Algebra of sets using Rust
-### Project developed to my Discrete Math Class
+
+## How to use:
+- Clone the repo
+- Run `cargo run`
+- Have fun
+
 ## Operations TODO list
 - [x] Belongs
 - [x] Don't belongs
@@ -17,3 +22,5 @@
 ## Features TODO list
 - [x] Read sets from file
 - [ ] Create user interface
+
+<img src="https://img.shields.io/badge/Rust-000000?style=for-the-badge&logo=rust&logoColor=white">
