@@ -3,8 +3,8 @@
 ## Operations TODO list
 - [x] Belongs
 - [x] Don't belongs
-- [ ] Contains or equal
-- [ ] Don't contains or equal
+- [x] Contains or equal
+- [x] Don't contains or equal
 - [ ] Properly contains
 - [ ] Don't properly contains
 - [ ] Union
