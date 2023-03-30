@@ -28,7 +28,29 @@ fn read_set(line: Result<String, std::io::Error>) -> IndexSet<i32> {
   set
 }
 
+fn belongs(set: IndexSet<i32>, value_to_compare: &i32) -> bool {
+  for i in 0..set.len(){
+      let value_on_position = set.get_index(i).expect("no value on position");
+      if value_to_compare == value_on_position {
+          return true
+      }
+  }
+  false
+}
+
+fn dont_belongs(set: IndexSet<i32>, value_to_compare: &i32) -> bool {
+  !belongs(set, value_to_compare)
+}
+
+fn testing(mut sets_vector: Vec<IndexSet<i32>>) {
+  let first_set = sets_vector.clone().into_iter().nth(0).expect("no set on this position");
+  println!("Set: {:?}", sets_vector);
+  let number_to_compare = 11;
+  println!("{} belongs to the first set? {}", number_to_compare, belongs(first_set.clone(), &number_to_compare));
+  println!("{} DON'T belongs to the first set? {}", number_to_compare, dont_belongs(first_set.clone(), &number_to_compare));  
+}
+
 fn main() {
   let sets_vector = read_sets_from_file();
-  println!("{:?}", sets_vector);
+    testing(sets_vector);
 }

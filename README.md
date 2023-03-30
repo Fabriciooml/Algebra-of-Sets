@@ -1,8 +1,8 @@
 # Algebra of sets using Rust
 ### Project developed to my Discrete Math Class
 ## Operations TODO list
-- [ ] Belongs
-- [ ] Don't belongs
+- [x] Belongs
+- [x] Don't belongs
 - [ ] Contains or equal
 - [ ] Don't contains or equal
 - [ ] Properly contains
