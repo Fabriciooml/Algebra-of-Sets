@@ -38,11 +38,11 @@ fn belongs(set: IndexSet<i32>, value_to_compare: &i32) -> bool {
   false
 }
 
-fn dont_belongs(set: IndexSet<i32>, value_to_compare: &i32) -> bool {
+fn does_not_belong(set: IndexSet<i32>, value_to_compare: &i32) -> bool {
   !belongs(set, value_to_compare)
 }
 
-fn contains(set: IndexSet<i32>, set_to_compare: IndexSet<i32>) -> bool {
+fn is_subset(set: IndexSet<i32>, set_to_compare: IndexSet<i32>) -> bool {
   let mut number_of_belongs = 0;
   for i in 0..set_to_compare.len(){
       let value_to_compare = set_to_compare.get_index(i).expect("no value on position");
@@ -56,19 +56,19 @@ fn contains(set: IndexSet<i32>, set_to_compare: IndexSet<i32>) -> bool {
   false
 }
 
-fn dont_contains(set: IndexSet<i32>, set_to_compare: IndexSet<i32>) -> bool {
-  !contains(set, set_to_compare) 
+fn is_not_subset(set: IndexSet<i32>, set_to_compare: IndexSet<i32>) -> bool {
+  !is_subset(set, set_to_compare) 
 }
 
-fn properly_contains(set: IndexSet<i32>, set_to_compare: IndexSet<i32>) -> bool {
-  if contains(set.clone(), set_to_compare.clone()) && set.len() > set_to_compare.len(){
+fn is_proper_subset(set: IndexSet<i32>, set_to_compare: IndexSet<i32>) -> bool {
+  if is_subset(set.clone(), set_to_compare.clone()) && set.len() > set_to_compare.len(){
       return true;
   } 
   false
 }
 
-fn dont_properly_contains(set: IndexSet<i32>, set_to_compare: IndexSet<i32>) -> bool {
-  !properly_contains(set, set_to_compare) 
+fn is_not_proper_subset(set: IndexSet<i32>, set_to_compare: IndexSet<i32>) -> bool {
+  !is_proper_subset(set, set_to_compare) 
 }
 
 fn union(mut set: IndexSet<i32>, mut set_to_union: IndexSet<i32>) -> IndexSet<i32> {
@@ -99,20 +99,20 @@ fn testing(mut sets_vector: Vec<IndexSet<i32>>) {
   println!("Set: {:?}", sets_vector);
   let number_to_compare = 11;
   println!("{} belongs to the first set? {}", number_to_compare, belongs(first_set.clone(), &number_to_compare));
-  println!("{} DON'T belongs to the first set? {}", number_to_compare, dont_belongs(first_set.clone(), &number_to_compare));
-  println!("first set contains the second one? {}", contains(
+  println!("{} DON'T belongs to the first set? {}", number_to_compare, does_not_belong(first_set.clone(), &number_to_compare));
+  println!("second is a subset of the first one? {}", is_subset(
       first_set.clone(),
       second_set.clone()
   ));
-  println!("first set DON'T contains the second one? {}", dont_contains(
+  println!("second set isn't a subset the first one? {}", is_not_subset(
       first_set.clone(),
       second_set.clone()
   ));
-  println!("first set contains properly the second one? {}", properly_contains(
+  println!("second is a proper subset of the first one? {}", is_proper_subset(
       first_set.clone(),
       second_set.clone()
   ));
-  println!("first set NÃO contains properly the second one? {}", dont_properly_contains(
+  println!("second isn't a proper subset of the first one? {}", is_not_proper_subset(
       first_set.clone(),
       second_set.clone()
   ));

@@ -7,18 +7,16 @@
 
 ## Operations TODO list
 - [x] Belongs
-- [x] Don't belongs
-- [x] Contains or equal
-- [x] Don't contains or equal
-- [x] Properly contains
-- [x] Don't properly contains
+- [x] Does not belong
+- [x] Subset
+- [x] Not subset
+- [x] Proper subset
+- [x] Not proper subset
 - [x] Union
 - [x] Intersection
-- [ ] Set difference
+- [ ] Subtraction
 - [ ] Cartesian product
-- [ ] Revert cartesian product
-- [ ] Set of parts
-- [ ] Revert set of parts
+- [ ] Powerset
 ## Features TODO list
 - [x] Read sets from file
 - [ ] Create user interface
