@@ -117,6 +117,14 @@ fn revert_cartesian_product(cartesian_product_vec: Vec<(i32, i32)>) -> Vec<Index
   sets_vec
 }
 
+fn subtraction(set: IndexSet<i32>, set_to_subtract: IndexSet<i32>) -> IndexSet<i32> {
+  let mut subtraction_set = set.clone();
+  for i in 0..set_to_subtract.len() {
+    subtraction_set.remove(&set_to_subtract[i]);
+  }
+  subtraction_set
+}
+
 fn testing(mut sets_vector: Vec<IndexSet<i32>>) {
   let second_set = sets_vector.clone().into_iter().nth(1).expect("no set on this position");
   let first_set = sets_vector.clone().into_iter().nth(0).expect("no set on this position");
@@ -167,6 +175,15 @@ cartesian_products.push(
 println!("{:?}", cartesian_products);
 
 println!("{:?}", revert_cartesian_product(cartesian_products.into_iter().nth(0).expect("no set on this position")));
+
+sets_vector.push(
+  subtraction(
+    first_set.clone(),
+    second_set.clone()
+  )
+);
+
+println!("{:?}", sets_vector);
 
 }
 

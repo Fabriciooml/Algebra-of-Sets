@@ -15,7 +15,7 @@
 - [x] Union
 - [x] Intersection
 - [x] Cartesian product
-- [ ] Subtraction
+- [x] Subtraction
 - [ ] Powerset
 ## Features TODO list
 - [x] Read sets from file
