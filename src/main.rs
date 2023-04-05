@@ -125,6 +125,26 @@ fn subtraction(set: IndexSet<i32>, set_to_subtract: IndexSet<i32>) -> IndexSet<i
   subtraction_set
 }
 
+fn power_set(set: IndexSet<i32>) -> Vec<IndexSet<i32>> {
+  let mut result = Vec::new();
+  result.push(IndexSet::new()); // add empty set
+  for i in 0..set.len() {
+    let elem = *set.get_index(i).expect("no element on index");
+      let len = result.len();
+      for j in 0..len {
+          let mut subset = result[j].clone();
+          subset.insert(elem);
+          result.push(subset);
+      }
+  }
+  result
+}
+
+fn revert_power_set(mut power_set_vec: Vec<IndexSet<i32>>) -> IndexSet<i32> {
+  let reverted = power_set_vec.pop().expect("Vector is empty");
+  reverted
+}
+
 fn testing(mut sets_vector: Vec<IndexSet<i32>>) {
   let second_set = sets_vector.clone().into_iter().nth(1).expect("no set on this position");
   let first_set = sets_vector.clone().into_iter().nth(0).expect("no set on this position");
@@ -184,6 +204,17 @@ sets_vector.push(
 );
 
 println!("{:?}", sets_vector);
+
+let mut power_set_vec: Vec<Vec<IndexSet<i32>>> = Vec::new();
+
+power_set_vec.push(power_set(first_set.clone()));
+
+println!("{:?}", power_set_vec.clone().into_iter().nth(0).expect("no power set on this position"));
+
+
+println!("{:?}", revert_power_set(
+  power_set_vec.clone().into_iter().nth(0).expect("no power set on this position")
+));
 
 }
 

@@ -16,7 +16,7 @@
 - [x] Intersection
 - [x] Cartesian product
 - [x] Subtraction
-- [ ] Powerset
+- [x] Powerset
 ## Features TODO list
 - [x] Read sets from file
 - [ ] Create user interface
