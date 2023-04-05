@@ -14,8 +14,8 @@
 - [x] Not proper subset
 - [x] Union
 - [x] Intersection
+- [x] Cartesian product
 - [ ] Subtraction
-- [ ] Cartesian product
 - [ ] Powerset
 ## Features TODO list
 - [x] Read sets from file

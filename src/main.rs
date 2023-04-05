@@ -32,7 +32,7 @@ fn belongs(set: IndexSet<i32>, value_to_compare: &i32) -> bool {
   for i in 0..set.len(){
       let value_on_position = set.get_index(i).expect("no value on position");
       if value_to_compare == value_on_position {
-          return true
+          return true;
       }
   }
   false
@@ -93,6 +93,30 @@ fn intersection(set: IndexSet<i32>, set_to_intersect: IndexSet<i32>) -> IndexSet
   intersected
 }
 
+fn cartesian_product(first_set: IndexSet<i32>, second_set: IndexSet<i32>) -> Vec<(i32, i32)> {
+  let mut product:Vec<(i32, i32)> = Vec::new();
+  for i in 0..first_set.len(){
+    for j in 0..second_set.len() {
+      let intermediate = (first_set[i], second_set[j]);
+      product.push(intermediate);
+    }
+  }
+  product
+}
+
+fn revert_cartesian_product(cartesian_product_vec: Vec<(i32, i32)>) -> Vec<IndexSet<i32>> {
+  let mut set_a:IndexSet<i32> = IndexSet::new();
+  let mut set_b:IndexSet<i32> = IndexSet::new();
+  let mut sets_vec:Vec<IndexSet<i32>> = Vec::new();
+  for i in 0..cartesian_product_vec.len() {
+    set_a.insert(cartesian_product_vec[i].0);
+    set_b.insert(cartesian_product_vec[i].1);
+  }
+  sets_vec.push(set_a);
+  sets_vec.push(set_b);
+  sets_vec
+}
+
 fn testing(mut sets_vector: Vec<IndexSet<i32>>) {
   let second_set = sets_vector.clone().into_iter().nth(1).expect("no set on this position");
   let first_set = sets_vector.clone().into_iter().nth(0).expect("no set on this position");
@@ -131,6 +155,18 @@ sets_vector.push(
 ));
 
 println!("{:?}", sets_vector);
+
+let mut cartesian_products: Vec<Vec<(i32, i32)>> = Vec::new();
+
+cartesian_products.push(
+  cartesian_product(
+    first_set.clone(),
+    second_set.clone()
+));
+
+println!("{:?}", cartesian_products);
+
+println!("{:?}", revert_cartesian_product(cartesian_products.into_iter().nth(0).expect("no set on this position")));
 
 }
 
