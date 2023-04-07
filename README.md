@@ -16,10 +16,10 @@
 - [x] Intersection
 - [x] Cartesian product
 - [x] Subtraction
-- [x] Powerset
+- [x] Power set
 ## Features TODO list
 - [x] Read sets from file
-- [ ] Create user interface
+- [x] Create user interface
 
 [![forthebadge](https://forthebadge.com/images/badges/made-with-rust.svg)](https://forthebadge.com)
 [![forthebadge](https://forthebadge.com/images/badges/made-with-crayons.svg)](https://forthebadge.com)

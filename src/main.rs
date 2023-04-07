@@ -1,30 +1,23 @@
 use indexmap::set::IndexSet;
 use std::fs::File;
-use std::io::{BufRead, BufReader};
+use std::io::{BufRead, BufReader, stdin};
 
 fn read_sets_from_file() -> Vec<IndexSet<i32>> {
-  let mut sets_vector: Vec<IndexSet<i32>> = Vec::new();
+  let mut sets_vector: Vec<IndexSet<i32>> = Vec::with_capacity(1024);
   let file = File::open("src/input.txt").expect("Failed to open file");
-  
-  for line in BufReader::new(file).lines() {
-      sets_vector.push(read_set(line));
-  }
+  sets_vector.extend(BufReader::new(file).lines().map(read_set));
   sets_vector
 }
 
-fn read_set(line: Result<String, std::io::Error>) -> IndexSet<i32> {
+fn read_set(line: &str) -> IndexSet<i32> {
   let mut set = IndexSet::new();    
 
-  let string = line.expect("Failed to read line");
-      let string = string.replace(&['{', '}'][..], "");
-      let tokens: Vec<&str> = string.split_whitespace().collect();
-      for i in 2..tokens.len(){
-          for value in tokens[i].split(',') {
-              if let Ok(num) = value.trim().parse::<i32>() {
-                  set.insert(num);
-              }
-          }
-      } 
+  let string = line.replace(&['{', '}'][..], "");
+  let tokens: Vec<&str> = string.split_whitespace().collect();
+  for i in 2..tokens.len() {
+    let values = tokens[i].split(',').map(|s| s.trim().parse::<i32>()).filter_map(Result::ok);
+    set.extend(values);
+}
   set
 }
 
@@ -140,85 +133,380 @@ fn power_set(set: IndexSet<i32>) -> Vec<IndexSet<i32>> {
   result
 }
 
-fn revert_power_set(mut power_set_vec: Vec<IndexSet<i32>>) -> IndexSet<i32> {
-  let reverted = power_set_vec.pop().expect("Vector is empty");
+fn revert_power_set(power_set_vec: Vec<IndexSet<i32>>) -> IndexSet<i32> {
+  let mut reverted: IndexSet<i32> = IndexSet::new();
+  for i in 0..power_set_vec.len() {
+    reverted = union(reverted, power_set_vec.clone().into_iter().nth(i).expect("no set on this position"));
+  }
   reverted
 }
 
-fn testing(mut sets_vector: Vec<IndexSet<i32>>) {
-  let second_set = sets_vector.clone().into_iter().nth(1).expect("no set on this position");
-  let first_set = sets_vector.clone().into_iter().nth(0).expect("no set on this position");
-  println!("Set: {:?}", sets_vector);
-  let number_to_compare = 11;
-  println!("{} belongs to the first set? {}", number_to_compare, belongs(first_set.clone(), &number_to_compare));
-  println!("{} DON'T belongs to the first set? {}", number_to_compare, does_not_belong(first_set.clone(), &number_to_compare));
-  println!("second is a subset of the first one? {}", is_subset(
-      first_set.clone(),
-      second_set.clone()
-  ));
-  println!("second set isn't a subset the first one? {}", is_not_subset(
-      first_set.clone(),
-      second_set.clone()
-  ));
-  println!("second is a proper subset of the first one? {}", is_proper_subset(
-      first_set.clone(),
-      second_set.clone()
-  ));
-  println!("second isn't a proper subset of the first one? {}", is_not_proper_subset(
-      first_set.clone(),
-      second_set.clone()
-  ));
-  sets_vector.push(
-    union(
-      first_set.clone(),
-      second_set.clone()
-));
+fn get_user_input() -> String {
+  let mut user_input:String = String::new();
+  stdin().read_line(&mut user_input).expect("Did not enter a correct string");
+  if let Some('\n')=user_input.chars().next_back() {
+    user_input.pop();
+  }
+  if let Some('\r')=user_input.chars().next_back() {
+    user_input.pop();
+  }
+  user_input
+}
 
-println!("{:?}", sets_vector);
+fn tui(mut sets_vector: Vec<IndexSet<i32>>) {
+  let mut user_input = String::new();
+  while user_input != "q"{
+    println!("{}", "-".repeat(50));
+    println!("Algebra of Sets");
+    println!("{}", "-".repeat(50));
+    println!("Menu:");
+    println!("0  - Belongs");
+    println!("1  - Does not belongs");
+    println!("2  - Subset");
+    println!("3  - Not a subset");
+    println!("4  - Proper subset");
+    println!("5  - Not proper subset");
+    println!("6  - Union");
+    println!("7  - Intersect");
+    println!("8  - Subtract");
+    println!("9  - Cartesian product");
+    println!("10 - Power set");
+    println!("p  - Print sets vector");
+    println!("q  - Quit");
 
-sets_vector.push(
-    intersection(
-      first_set.clone(),
-      second_set.clone()
-));
+    user_input = get_user_input();
 
-println!("{:?}", sets_vector);
+    println!("{}", "-".repeat(50));
+    
+    if user_input == "0" { //Belongs
+      println!("Choose a set:");
+      for (i, item) in sets_vector.iter().enumerate() {
+          println!("{} = {:?}", i, item);
+      }
 
-let mut cartesian_products: Vec<Vec<(i32, i32)>> = Vec::new();
+      let choosen_set_index: usize = get_user_input().trim().parse().expect("Input not an integer");
+      let choosen_set = sets_vector.clone().into_iter().nth(choosen_set_index).expect("Set not found");
+      println!("{}", "-".repeat(50));
 
-cartesian_products.push(
-  cartesian_product(
-    first_set.clone(),
-    second_set.clone()
-));
+      println!("Insert a number to see if it belongs to the set:");
+      let choosen_number_str = get_user_input();
+      let choosen_number_int: i32 = choosen_number_str.trim().parse().expect("Input not an integer");
+      println!("{}", "-".repeat(50));
 
-println!("{:?}", cartesian_products);
+      match belongs(choosen_set, &choosen_number_int) {
+        true => println!("\n{} belongs to the set\n", choosen_number_int),
+        false => println!("\n{} doesn't belong to the set\n", choosen_number_int)
+      }
+    }
+  
+    if user_input == "1" { //Does not belongs
+      println!("Choose a set:");
+      for (i, item) in sets_vector.iter().enumerate() {
+          println!("{} = {:?}", i, item);
+      }
 
-println!("{:?}", revert_cartesian_product(cartesian_products.into_iter().nth(0).expect("no set on this position")));
+      let choosen_set_index: usize = get_user_input().trim().parse().expect("Input not an integer");
+      let choosen_set = sets_vector.clone().into_iter().nth(choosen_set_index).expect("Set not found");
+      println!("{}", "-".repeat(50));
 
-sets_vector.push(
-  subtraction(
-    first_set.clone(),
-    second_set.clone()
-  )
-);
+      println!("Insert a number to see if it belongs to the set:");
+      let choosen_number_str = get_user_input();
+      let choosen_number_int: i32 = choosen_number_str.trim().parse().expect("Input not an integer");
+      println!("{}", "-".repeat(50));
 
-println!("{:?}", sets_vector);
+      match does_not_belong(choosen_set, &choosen_number_int) {
+        true => println!("\n{} doesn't belong to the set\n", choosen_number_int),
+        false => println!("\n{} belongs to the set\n", choosen_number_int)
+      }
+    }
+  
+    if user_input == "2" { //Subset
 
-let mut power_set_vec: Vec<Vec<IndexSet<i32>>> = Vec::new();
+      println!("Choose the first set:");
+      for (i, item) in sets_vector.iter().enumerate() {
+          println!("{} = {:?}", i, item);
+      }
 
-power_set_vec.push(power_set(first_set.clone()));
+      let choosen_first_set_index: usize = get_user_input().trim().parse().expect("Input not an integer");
+      let choosen_first_set = sets_vector.clone().into_iter().nth(choosen_first_set_index).expect("Set not found");
+      println!("{}", "-".repeat(50));
 
-println!("{:?}", power_set_vec.clone().into_iter().nth(0).expect("no power set on this position"));
+      println!("Choose the second set:");
+      for (i, item) in sets_vector.iter().enumerate() {
+          println!("{} = {:?}", i, item);
+      }
 
+      let choosen_second_set_index: usize = get_user_input().trim().parse().expect("Input not an integer");
+      let choosen_second_set = sets_vector.clone().into_iter().nth(choosen_second_set_index).expect("Set not found");
+      println!("{}", "-".repeat(50));
 
-println!("{:?}", revert_power_set(
-  power_set_vec.clone().into_iter().nth(0).expect("no power set on this position")
-));
+      match is_subset(choosen_first_set, choosen_second_set) {
+        true => println!("\nSecond set is a subset of the first one\n"),
+        false => println!("\nSecond set isn't a subset of the first one\n")
+      }
+    }
 
+    if user_input == "3" { //Not a subset
+
+      println!("Choose the first set:");
+      for (i, item) in sets_vector.iter().enumerate() {
+          println!("{} = {:?}", i, item);
+      }
+
+      let choosen_first_set_index: usize = get_user_input().trim().parse().expect("Input not an integer");
+      let choosen_first_set = sets_vector.clone().into_iter().nth(choosen_first_set_index).expect("Set not found");
+      println!("{}", "-".repeat(50));
+
+      println!("Choose the second set:");
+      for (i, item) in sets_vector.iter().enumerate() {
+          println!("{} = {:?}", i, item);
+      }
+
+      let choosen_second_set_index: usize = get_user_input().trim().parse().expect("Input not an integer");
+      let choosen_second_set = sets_vector.clone().into_iter().nth(choosen_second_set_index).expect("Set not found");
+      println!("{}", "-".repeat(50));
+
+      match is_not_subset(choosen_first_set, choosen_second_set) {
+        true => println!("\nSecond set isn't a subset of the first one\n"),
+        false => println!("\nSecond set is a subset of the first one\n")
+      }
+    }
+  
+    if user_input == "4" { //Proper subset
+
+      println!("Choose the first set:");
+      for (i, item) in sets_vector.iter().enumerate() {
+          println!("{} = {:?}", i, item);
+      }
+
+      let choosen_first_set_index: usize = get_user_input().trim().parse().expect("Input not an integer");
+      let choosen_first_set = sets_vector.clone().into_iter().nth(choosen_first_set_index).expect("Set not found");
+      println!("{}", "-".repeat(50));
+
+      println!("Choose the second set:");
+      for (i, item) in sets_vector.iter().enumerate() {
+          println!("{} = {:?}", i, item);
+      }
+
+      let choosen_second_set_index: usize = get_user_input().trim().parse().expect("Input not an integer");
+      let choosen_second_set = sets_vector.clone().into_iter().nth(choosen_second_set_index).expect("Set not found");
+      println!("{}", "-".repeat(50));
+
+      match is_proper_subset(choosen_first_set, choosen_second_set) {
+        true => println!("\nSecond set is a proper subset of the first one\n"),
+        false => println!("\nSecond set isn't a proper subset of the first one\n")
+      }
+    }
+
+    if user_input == "5" { //Not proper subset
+
+      println!("Choose the first set:");
+      for (i, item) in sets_vector.iter().enumerate() {
+          println!("{} = {:?}", i, item);
+      }
+
+      let choosen_first_set_index: usize = get_user_input().trim().parse().expect("Input not an integer");
+      let choosen_first_set = sets_vector.clone().into_iter().nth(choosen_first_set_index).expect("Set not found");
+      println!("{}", "-".repeat(50));
+
+      println!("Choose the second set:");
+      for (i, item) in sets_vector.iter().enumerate() {
+          println!("{} = {:?}", i, item);
+      }
+
+      let choosen_second_set_index: usize = get_user_input().trim().parse().expect("Input not an integer");
+      let choosen_second_set = sets_vector.clone().into_iter().nth(choosen_second_set_index).expect("Set not found");
+      println!("{}", "-".repeat(50));
+
+      match is_not_proper_subset(choosen_first_set, choosen_second_set) {
+        true => println!("\nSecond set isn't a proper subset of the first one\n"),
+        false => println!("\nSecond set is a proper subset of the first one\n")
+      }
+    }
+  
+    if user_input == "6" { //Union
+      let mut unioned = IndexSet::new();
+      println!("Choose a set:");
+      for (i, item) in sets_vector.iter().enumerate() {
+          println!("{} = {:?}", i, item);
+      }
+
+      println!("all- Union all sets");
+      println!("{}", "-".repeat(50));
+
+      user_input = get_user_input();
+
+      println!("{user_input}");
+
+      if user_input == "all" {
+        for (i, item) in sets_vector.iter().enumerate() {
+          if i != 0 {
+            unioned = union(sets_vector.clone().into_iter().nth(i-1).expect("Set not found"), item.clone());
+          }
+        }
+
+      }
+      else {
+        let choosen_first_set_index: usize = user_input.trim().parse().expect("Input not an integer");
+        let choosen_first_set = sets_vector.clone().into_iter().nth(choosen_first_set_index).expect("Set not found");
+        println!("{}", "-".repeat(50));
+  
+        println!("Choose the second set:");
+        for (i, item) in sets_vector.iter().enumerate() {
+            println!("{} = {:?}", i, item);
+        }
+  
+        let choosen_second_set_index: usize = get_user_input().trim().parse().expect("Input not an integer");
+        let choosen_second_set = sets_vector.clone().into_iter().nth(choosen_second_set_index).expect("Set not found");
+        
+        unioned = union(choosen_first_set, choosen_second_set);
+        
+        println!("{}", "-".repeat(50));
+      }
+      println!("\n{:?}\n", unioned);
+
+      sets_vector.push(unioned);
+      println!("Added unioned set to sets vector");
+      println!("\n{:?}\n", sets_vector);
+    }
+
+    if user_input == "7" { //Intersection
+      let mut intersected = IndexSet::new();
+      println!("Choose a set:");
+      for (i, item) in sets_vector.iter().enumerate() {
+          println!("{} = {:?}", i, item);
+      }
+
+      println!("all- Intersect all sets");
+      println!("{}", "-".repeat(50));
+
+      user_input = get_user_input();
+
+      println!("{user_input}");
+
+      if user_input == "all" {
+        for (i, item) in sets_vector.iter().enumerate() {
+          if i != 0 {
+            intersected = intersection(sets_vector.clone().into_iter().nth(i-1).expect("Set not found"), item.clone());
+          }
+        }
+
+      }
+      else {
+        let choosen_first_set_index: usize = user_input.trim().parse().expect("Input not an integer");
+        let choosen_first_set = sets_vector.clone().into_iter().nth(choosen_first_set_index).expect("Set not found");
+        println!("{}", "-".repeat(50));
+  
+        println!("Choose the second set:");
+        for (i, item) in sets_vector.iter().enumerate() {
+            println!("{} = {:?}", i, item);
+        }
+  
+        let choosen_second_set_index: usize = get_user_input().trim().parse().expect("Input not an integer");
+        let choosen_second_set = sets_vector.clone().into_iter().nth(choosen_second_set_index).expect("Set not found");
+        
+        intersected = intersection(choosen_first_set, choosen_second_set);
+        
+        println!("{}", "-".repeat(50));
+      }
+      println!("\n{:?}\n", intersected);
+
+      sets_vector.push(intersected);
+      println!("Added intersected set to sets vector");
+      println!("\n{:?}\n", sets_vector);
+    }
+
+    if user_input == "8" { //Subtraction 
+      println!("Choose the first set:");
+      for (i, item) in sets_vector.iter().enumerate() {
+          println!("{} = {:?}", i, item);
+      }
+
+      let choosen_first_set_index: usize = get_user_input().trim().parse().expect("Input not an integer");
+      let choosen_first_set = sets_vector.clone().into_iter().nth(choosen_first_set_index).expect("Set not found");
+      println!("{}", "-".repeat(50));
+
+      println!("Choose the second set:");
+      for (i, item) in sets_vector.iter().enumerate() {
+          println!("{} = {:?}", i, item);
+      }
+
+      let choosen_second_set_index: usize = get_user_input().trim().parse().expect("Input not an integer");
+      let choosen_second_set = sets_vector.clone().into_iter().nth(choosen_second_set_index).expect("Set not found");
+      println!("{}", "-".repeat(50));
+
+      let subtracted = subtraction(choosen_first_set, choosen_second_set);
+
+      println!("\n{:?}\n", subtracted);
+
+      sets_vector.push(subtracted);
+      println!("Added subtracted set to sets vector");
+      println!("\n{:?}\n", sets_vector);
+    }
+  
+    if user_input == "9" { //Cartesian Product 
+      println!("Choose the first set:");
+      for (i, item) in sets_vector.iter().enumerate() {
+          println!("{} = {:?}", i, item);
+      }
+
+      let choosen_first_set_index: usize = get_user_input().trim().parse().expect("Input not an integer");
+      let choosen_first_set = sets_vector.clone().into_iter().nth(choosen_first_set_index).expect("Set not found");
+      println!("{}", "-".repeat(50));
+
+      println!("Choose the second set:");
+      for (i, item) in sets_vector.iter().enumerate() {
+          println!("{} = {:?}", i, item);
+      }
+
+      let choosen_second_set_index: usize = get_user_input().trim().parse().expect("Input not an integer");
+      let choosen_second_set = sets_vector.clone().into_iter().nth(choosen_second_set_index).expect("Set not found");
+      println!("{}", "-".repeat(50));
+
+      let product = cartesian_product(choosen_first_set, choosen_second_set);
+
+      println!("\n{:?}\n", product);
+
+      println!("Want to revert it? y/n");
+      match get_user_input().trim(){
+        "y" => {println!("{:?}", revert_cartesian_product(product))},
+        "n" => {continue},
+        _   => {println!("Invalid")}
+      }
+
+    }
+
+    if user_input == "10" { //Power set
+      println!("Choose the first set:");
+      for (i, item) in sets_vector.iter().enumerate() {
+          println!("{} = {:?}", i, item);
+      }
+
+      let choosen_set_index: usize = get_user_input().trim().parse().expect("Input not an integer");
+      let choosen_set = sets_vector.clone().into_iter().nth(choosen_set_index).expect("Set not found");
+      println!("{}", "-".repeat(50));
+
+      let result_set = power_set(choosen_set);
+
+      println!("\n{:?}\n", result_set);
+
+      println!("Want to revert it? y/n");
+      match get_user_input().trim(){
+        "y" => {println!("{:?}", revert_power_set(result_set))},
+        "n" => {continue},
+        _   => {println!("Invalid")}
+      }
+    }
+  
+    if user_input == "p" { // Print sets
+      for (i, item) in sets_vector.iter().enumerate() {
+        println!("{} = {:?}", i, item);
+      }
+    }
+  }
 }
 
 fn main() {
   let sets_vector = read_sets_from_file();
-    testing(sets_vector);
+  tui(sets_vector);
 }
