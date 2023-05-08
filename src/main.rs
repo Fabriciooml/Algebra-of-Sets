@@ -134,6 +134,7 @@ fn power_set(set: IndexSet<i32>) -> Vec<IndexSet<i32>> {
       for j in 0..len {
           let mut subset = result[j].clone();
           subset.insert(elem);
+          println!("{:?}", subset);
           result.push(subset);
       }
   }
@@ -146,6 +147,179 @@ fn revert_power_set(power_set_vec: Vec<IndexSet<i32>>) -> IndexSet<i32> {
     reverted = union(reverted, power_set_vec.clone().into_iter().nth(i).expect("no set on this position"));
   }
   reverted
+}
+
+fn get_relation_matrix(set_a: IndexSet<i32>, set_b: IndexSet<i32>, operation:&str, inputed_relation:Vec<(i32, i32)>) -> Vec<Vec<bool>> {
+  // A coluna é o set A as linhas são o set B
+  let mut relation = vec![vec![false; set_a.len()]; set_b.len()];
+  for i in 0..set_a.len() {
+    for j in 0..set_b.len() {
+      match operation {
+        "smaller" => {
+          let value_a = set_a.clone().into_iter().nth(i).expect("");
+          let value_b = set_b.clone().into_iter().nth(j).expect("");
+          if value_a < value_b {
+            relation[j][i] = true;
+          }
+        }
+        "bigger" => {
+          let value_a = set_a.clone().into_iter().nth(i).expect("");
+          let value_b = set_b.clone().into_iter().nth(j).expect("");
+          if value_a > value_b {
+            relation[j][i] = true;
+          }
+        }
+        "equals" => {
+          let value_a = set_a.clone().into_iter().nth(i).expect("");
+          let value_b = set_b.clone().into_iter().nth(j).expect("");
+          if value_a == value_b {
+            relation[j][i] = true;
+          }
+        }
+        "exponential" => {
+          let value_a = set_a.clone().into_iter().nth(i).expect("");
+          let value_b = set_b.clone().into_iter().nth(j).expect("");
+          if value_a*value_a == value_b {
+            relation[j][i] = true;
+          }
+        }
+        "sqrt" => {
+          let value_a = set_a.clone().into_iter().nth(i).expect("");
+          let value_b = set_b.clone().into_iter().nth(j).expect("");
+          if (value_a as f64).sqrt() == (value_b as f64) {
+            relation[j][i] = true;
+          }
+        }
+        "relation" => {
+          let value_a = set_a.clone().into_iter().nth(i).expect("");
+          let value_b = set_b.clone().into_iter().nth(j).expect("");
+          for k in 0..inputed_relation.len(){
+            let item = inputed_relation.clone().into_iter().nth(k).expect("");
+            if value_a == item.0 && value_b == item.1 {
+              relation[j][i] = true;
+            }
+          }
+        }
+        _ => println!("Invalid Operator")
+      }
+    }
+  }
+  relation
+}
+
+fn is_functional(relation_matrix: Vec<Vec<bool>>) -> bool {
+  for i in 0..relation_matrix.len() {
+    let mut counter = 0;
+    let row = relation_matrix.clone().into_iter().nth(i).expect("invalid row");
+    for j in 0..row.len() {
+      let value = row.clone().into_iter().nth(j).expect("Value doesn't exists");
+      if value {
+        counter += 1;
+      }
+    }
+    if counter > 1 {
+      return false;
+    }
+  }
+  true
+}
+
+fn is_injector(relation_matrix: Vec<Vec<bool>>) -> bool {
+  for i in 0..relation_matrix.len() {
+    let mut counter = 0;
+    let row = relation_matrix.clone().into_iter().nth(i).expect("invalid row");
+    for j in 0..row.len() {
+      let value = row.clone().into_iter().nth(j).expect("Value doesn't exists");
+      if value {
+        counter += 1;
+        if counter > 1 {
+            return false;
+        }
+      }
+    }
+  }
+true
+}
+
+fn is_total(relation_matrix: Vec<Vec<bool>>) -> bool {
+  for i in 0..relation_matrix.len() {
+    let mut counter = 0;
+    let row = relation_matrix.clone().into_iter().nth(i).expect("invalid row");
+    for j in 0..row.len() {
+      let value = row.clone().into_iter().nth(j).expect("Value doesn't exists");
+      if value {
+        counter += 1;
+      }
+    }
+    if counter < 1 {
+      return false;
+    }
+  }
+  true
+}
+
+fn is_surjective(relation_matrix: Vec<Vec<bool>>) -> bool {
+  for i in 0..relation_matrix.len() {
+    let mut counter = 0;
+    let row = relation_matrix.clone().into_iter().nth(i).expect("invalid row");
+    for j in 0..row.len() {
+      let value = row.clone().into_iter().nth(j).expect("Value doesn't exists");
+      if value {
+        counter += 1;
+        if counter < 1 {
+            return false;
+        }
+      }
+    }
+  }
+true
+}
+
+fn is_monomorphism(relation_matrix: Vec<Vec<bool>>) -> bool {
+  if is_total(relation_matrix.clone()) && is_injector(relation_matrix.clone()) {
+    return true;
+  }
+  false
+}
+
+fn is_epimorphism(relation_matrix: Vec<Vec<bool>>) -> bool {
+  if is_functional(relation_matrix.clone()) && is_surjective(relation_matrix.clone()) {
+    return true;
+  }
+  false
+}
+
+fn is_isomorphism(relation_matrix: Vec<Vec<bool>>) -> bool {
+  if is_monomorphism(relation_matrix.clone()) && is_epimorphism(relation_matrix.clone()) {
+    return true;
+  }
+  false
+}
+
+fn identify_relation(relation_matrix: Vec<Vec<bool>>) -> Vec<String> {
+  let mut result:Vec<String> = Vec::new();
+  if is_functional(relation_matrix.clone()) {
+    result.push(String::from("Functional"));
+  }
+  if is_injector(relation_matrix.clone()) {
+    result.push(String::from("Injector"));
+  }
+  if is_total(relation_matrix.clone()) {
+    result.push(String::from("Total"));
+  }
+  if is_surjective(relation_matrix.clone()) {
+    result.push(String::from("Surjective"));
+  }
+  if is_monomorphism(relation_matrix.clone()) {
+    result.push(String::from("Monomorphism"));
+  }
+  if is_epimorphism(relation_matrix.clone()) {
+    result.push(String::from("Epimorphism"));
+  }
+  if is_isomorphism(relation_matrix.clone()) {
+    result.push(String::from("Isomorphism"));
+  }
+  result
 }
 
 fn get_user_input() -> String {
@@ -178,6 +352,7 @@ fn tui(mut sets_vector: Vec<IndexSet<i32>>) {
     println!("8  - Subtract");
     println!("9  - Cartesian product");
     println!("10 - Power set");
+    println!("r - Relations");
     println!("p  - Print sets vector");
     println!("q  - Quit");
 
@@ -206,7 +381,7 @@ fn tui(mut sets_vector: Vec<IndexSet<i32>>) {
       }
     }
   
-    if user_input == "1" { //Does not belongs
+    else if user_input == "1" { //Does not belongs
       println!("Choose a set:");
       for (i, item) in sets_vector.iter().enumerate() {
           println!("{} = {:?}", i, item);
@@ -227,7 +402,7 @@ fn tui(mut sets_vector: Vec<IndexSet<i32>>) {
       }
     }
   
-    if user_input == "2" { //Subset
+    else if user_input == "2" { //Subset
 
       println!("Choose the first set:");
       for (i, item) in sets_vector.iter().enumerate() {
@@ -253,7 +428,7 @@ fn tui(mut sets_vector: Vec<IndexSet<i32>>) {
       }
     }
 
-    if user_input == "3" { //Not a subset
+    else if user_input == "3" { //Not a subset
 
       println!("Choose the first set:");
       for (i, item) in sets_vector.iter().enumerate() {
@@ -279,7 +454,7 @@ fn tui(mut sets_vector: Vec<IndexSet<i32>>) {
       }
     }
   
-    if user_input == "4" { //Proper subset
+    else if user_input == "4" { //Proper subset
 
       println!("Choose the first set:");
       for (i, item) in sets_vector.iter().enumerate() {
@@ -305,7 +480,7 @@ fn tui(mut sets_vector: Vec<IndexSet<i32>>) {
       }
     }
 
-    if user_input == "5" { //Not proper subset
+    else if user_input == "5" { //Not proper subset
 
       println!("Choose the first set:");
       for (i, item) in sets_vector.iter().enumerate() {
@@ -331,45 +506,35 @@ fn tui(mut sets_vector: Vec<IndexSet<i32>>) {
       }
     }
   
-    if user_input == "6" { //Union
-      let mut unioned = IndexSet::new();
+    else if user_input == "6" { //Union
+
       println!("Choose a set:");
       for (i, item) in sets_vector.iter().enumerate() {
           println!("{} = {:?}", i, item);
       }
 
-      println!("all- Union all sets");
       println!("{}", "-".repeat(50));
 
       user_input = get_user_input();
 
       println!("{user_input}");
 
-      if user_input == "all" {
-        for (i, item) in sets_vector.iter().enumerate() {
-          if i != 0 {
-            unioned = union(sets_vector.clone().into_iter().nth(i-1).expect("Set not found"), item.clone());
-          }
-        }
+      let choosen_first_set_index: usize = user_input.trim().parse().expect("Input not an integer");
+      let choosen_first_set = sets_vector.clone().into_iter().nth(choosen_first_set_index).expect("Set not found");
+      println!("{}", "-".repeat(50));
 
+      println!("Choose the second set:");
+      for (i, item) in sets_vector.iter().enumerate() {
+          println!("{} = {:?}", i, item);
       }
-      else {
-        let choosen_first_set_index: usize = user_input.trim().parse().expect("Input not an integer");
-        let choosen_first_set = sets_vector.clone().into_iter().nth(choosen_first_set_index).expect("Set not found");
-        println!("{}", "-".repeat(50));
-  
-        println!("Choose the second set:");
-        for (i, item) in sets_vector.iter().enumerate() {
-            println!("{} = {:?}", i, item);
-        }
-  
-        let choosen_second_set_index: usize = get_user_input().trim().parse().expect("Input not an integer");
-        let choosen_second_set = sets_vector.clone().into_iter().nth(choosen_second_set_index).expect("Set not found");
-        
-        unioned = union(choosen_first_set, choosen_second_set);
-        
-        println!("{}", "-".repeat(50));
-      }
+
+      let choosen_second_set_index: usize = get_user_input().trim().parse().expect("Input not an integer");
+      let choosen_second_set = sets_vector.clone().into_iter().nth(choosen_second_set_index).expect("Set not found");
+      
+      let unioned = union(choosen_first_set, choosen_second_set);
+      
+      println!("{}", "-".repeat(50));
+      
       println!("\n{:?}\n", unioned);
 
       sets_vector.push(unioned);
@@ -377,45 +542,34 @@ fn tui(mut sets_vector: Vec<IndexSet<i32>>) {
       println!("\n{:?}\n", sets_vector);
     }
 
-    if user_input == "7" { //Intersection
-      let mut intersected = IndexSet::new();
+    else if user_input == "7" { //Intersection
       println!("Choose a set:");
       for (i, item) in sets_vector.iter().enumerate() {
           println!("{} = {:?}", i, item);
       }
 
-      println!("all- Intersect all sets");
       println!("{}", "-".repeat(50));
 
       user_input = get_user_input();
 
       println!("{user_input}");
 
-      if user_input == "all" {
-        for (i, item) in sets_vector.iter().enumerate() {
-          if i != 0 {
-            intersected = intersection(sets_vector.clone().into_iter().nth(i-1).expect("Set not found"), item.clone());
-          }
-        }
+      let choosen_first_set_index: usize = user_input.trim().parse().expect("Input not an integer");
+      let choosen_first_set = sets_vector.clone().into_iter().nth(choosen_first_set_index).expect("Set not found");
+      println!("{}", "-".repeat(50));
 
+      println!("Choose the second set:");
+      for (i, item) in sets_vector.iter().enumerate() {
+          println!("{} = {:?}", i, item);
       }
-      else {
-        let choosen_first_set_index: usize = user_input.trim().parse().expect("Input not an integer");
-        let choosen_first_set = sets_vector.clone().into_iter().nth(choosen_first_set_index).expect("Set not found");
-        println!("{}", "-".repeat(50));
-  
-        println!("Choose the second set:");
-        for (i, item) in sets_vector.iter().enumerate() {
-            println!("{} = {:?}", i, item);
-        }
-  
-        let choosen_second_set_index: usize = get_user_input().trim().parse().expect("Input not an integer");
-        let choosen_second_set = sets_vector.clone().into_iter().nth(choosen_second_set_index).expect("Set not found");
-        
-        intersected = intersection(choosen_first_set, choosen_second_set);
-        
-        println!("{}", "-".repeat(50));
-      }
+
+      let choosen_second_set_index: usize = get_user_input().trim().parse().expect("Input not an integer");
+      let choosen_second_set = sets_vector.clone().into_iter().nth(choosen_second_set_index).expect("Set not found");
+      
+      let intersected = intersection(choosen_first_set, choosen_second_set);
+      
+      println!("{}", "-".repeat(50));
+    
       println!("\n{:?}\n", intersected);
 
       sets_vector.push(intersected);
@@ -423,7 +577,7 @@ fn tui(mut sets_vector: Vec<IndexSet<i32>>) {
       println!("\n{:?}\n", sets_vector);
     }
 
-    if user_input == "8" { //Subtraction 
+    else if user_input == "8" { //Subtraction 
       println!("Choose the first set:");
       for (i, item) in sets_vector.iter().enumerate() {
           println!("{} = {:?}", i, item);
@@ -451,7 +605,7 @@ fn tui(mut sets_vector: Vec<IndexSet<i32>>) {
       println!("\n{:?}\n", sets_vector);
     }
   
-    if user_input == "9" { //Cartesian Product 
+    else if user_input == "9" { //Cartesian Product 
       println!("Choose the first set:");
       for (i, item) in sets_vector.iter().enumerate() {
           println!("{} = {:?}", i, item);
@@ -483,7 +637,7 @@ fn tui(mut sets_vector: Vec<IndexSet<i32>>) {
 
     }
 
-    if user_input == "10" { //Power set
+    else if user_input == "10" { //Power set
       println!("Choose the first set:");
       for (i, item) in sets_vector.iter().enumerate() {
           println!("{} = {:?}", i, item);
@@ -505,7 +659,96 @@ fn tui(mut sets_vector: Vec<IndexSet<i32>>) {
       }
     }
   
-    if user_input == "p" { // Print sets
+    else if user_input == "r" { //Relations menu
+      let mut relations_user_input = String::new();
+      while relations_user_input != "q"{
+
+        println!("{}", "-".repeat(50));
+        println!("Algebra of Sets - Relations");
+        println!("{}", "-".repeat(50));
+        println!("Menu:");
+        println!(" 0 - Smaller then (<)");
+        println!(" 1 - Bigger then (>)");
+        println!(" 2 - Equals to (=)");
+        println!(" 3 - Exponential (**)");
+        println!(" 4 - Square root (sqrt)");
+        println!(" 5 - User input relation");
+        println!(" q - Back to menu");
+
+
+        relations_user_input = get_user_input();
+        
+        if relations_user_input == "q" {
+          break;
+        }
+        let mut inputed_relation:Vec<(i32, i32)> = Vec::new();
+
+        println!("Choose the first set:");
+        for (i, item) in sets_vector.iter().enumerate() {
+            println!("{} = {:?}", i, item);
+        }
+  
+        let choosen_first_set_index: usize = get_user_input().trim().parse().expect("Input not an integer");
+        let choosen_first_set = sets_vector.clone().into_iter().nth(choosen_first_set_index).expect("Set not found");
+        println!("{}", "-".repeat(50));
+  
+        println!("Choose the second set:");
+        for (i, item) in sets_vector.iter().enumerate() {
+            println!("{} = {:?}", i, item);
+        }
+  
+        let choosen_second_set_index: usize = get_user_input().trim().parse().expect("Input not an integer");
+        let choosen_second_set = sets_vector.clone().into_iter().nth(choosen_second_set_index).expect("Set not found");
+        println!("{}", "-".repeat(50));
+
+        let mut operation = "";
+
+        if relations_user_input == "0" {
+          operation = "smaller";
+        }
+
+        else if relations_user_input == "1" {
+          operation = "bigger";
+        }
+
+        else if relations_user_input == "2" {
+          operation = "equals";
+        }
+ 
+        else if relations_user_input == "3" {
+          operation = "exponential";
+        }
+
+        else if relations_user_input == "4" {
+          operation = "sqrt";
+        }
+
+        else if relations_user_input == "5" {
+          operation = "relation";
+          println!("{}", "-".repeat(50));
+          println!("Input the size of the relations vector: ");
+          let mut size:i32 = get_user_input().trim().parse().expect("Input not an integer");
+          while size != 0{
+            println!("input first element: ");
+            let first_element = get_user_input().trim().parse().expect("Input not an integer");
+            println!("input second element: ");
+            let second_element = get_user_input().trim().parse().expect("Input not an integer");
+            inputed_relation.push((first_element, second_element));
+            size -= 1;
+        }
+      }
+      
+      let relation_matrix = get_relation_matrix(choosen_first_set, choosen_second_set, operation, inputed_relation);
+      let relation_classification = identify_relation(relation_matrix);
+
+      println!("The relation is:");
+      for classification in relation_classification {
+        println!("{:?}", classification);
+      }
+    }
+  }
+
+    else if user_input == "p" { // Print sets
       for (i, item) in sets_vector.iter().enumerate() {
         println!("{} = {:?}", i, item);
       }
@@ -516,4 +759,21 @@ fn tui(mut sets_vector: Vec<IndexSet<i32>>) {
 fn main() {
   let sets_vector = read_sets_from_file();
   tui(sets_vector);
+  // let set_a: IndexSet<i32> = sets_vector.clone().into_iter().nth(2).expect("Set not found");
+  // let set_b = sets_vector.clone().into_iter().nth(0).expect("Set not found");
+  // let operation = "relation";
+  // let inputed_relation = vec![(1, 1), (2, 2), (3, 3), (4, 4), (11, 11), (-1, -1)];
+  // let relation = get_relation_matrix(set_a, set_b, operation, inputed_relation);
+  // let relation_classification = identify_relation(relation);
+  // for (i, item) in relation_classification.iter().enumerate() {
+  //   println!("{:?}", item);
+// }
+  // println!("{:?}", relation);
+  // println!("{}", is_functional(relation.clone()));
+  // println!("{}", is_total(relation.clone()));
+  // println!("{}", is_injector(relation.clone()));
+  // println!("{}", is_surjective(relation.clone()));
+  // println!("{}", is_monomorphism(relation.clone()));
+  // println!("{}", is_epimorphism(relation.clone()));
+  // println!("{}", is_isomorphism(relation.clone()));
 }
