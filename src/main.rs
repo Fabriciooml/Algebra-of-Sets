@@ -759,21 +759,4 @@ fn tui(mut sets_vector: Vec<IndexSet<i32>>) {
 fn main() {
   let sets_vector = read_sets_from_file();
   tui(sets_vector);
-  // let set_a: IndexSet<i32> = sets_vector.clone().into_iter().nth(2).expect("Set not found");
-  // let set_b = sets_vector.clone().into_iter().nth(0).expect("Set not found");
-  // let operation = "relation";
-  // let inputed_relation = vec![(1, 1), (2, 2), (3, 3), (4, 4), (11, 11), (-1, -1)];
-  // let relation = get_relation_matrix(set_a, set_b, operation, inputed_relation);
-  // let relation_classification = identify_relation(relation);
-  // for (i, item) in relation_classification.iter().enumerate() {
-  //   println!("{:?}", item);
-// }
-  // println!("{:?}", relation);
-  // println!("{}", is_functional(relation.clone()));
-  // println!("{}", is_total(relation.clone()));
-  // println!("{}", is_injector(relation.clone()));
-  // println!("{}", is_surjective(relation.clone()));
-  // println!("{}", is_monomorphism(relation.clone()));
-  // println!("{}", is_epimorphism(relation.clone()));
-  // println!("{}", is_isomorphism(relation.clone()));
 }
