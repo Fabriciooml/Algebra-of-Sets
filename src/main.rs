@@ -151,7 +151,7 @@ fn revert_power_set(power_set_vec: Vec<IndexSet<i32>>) -> IndexSet<i32> {
 
 fn get_relation_matrix(set_a: IndexSet<i32>, set_b: IndexSet<i32>, operation:&str, inputed_relation:Vec<(i32, i32)>) -> Vec<Vec<bool>> {
   // A coluna é o set A as linhas são o set B
-  let mut relation = vec![vec![false; set_a.len()]; set_b.len()];
+  let mut relation = vec![vec![false; set_b.len()]; set_a.len()];
   for i in 0..set_a.len() {
     for j in 0..set_b.len() {
       match operation {
@@ -159,35 +159,40 @@ fn get_relation_matrix(set_a: IndexSet<i32>, set_b: IndexSet<i32>, operation:&st
           let value_a = set_a.clone().into_iter().nth(i).expect("");
           let value_b = set_b.clone().into_iter().nth(j).expect("");
           if value_a < value_b {
-            relation[j][i] = true;
+            println!("({}, {})", value_a, value_b);
+            relation[i][j] = true;
           }
         }
         "bigger" => {
           let value_a = set_a.clone().into_iter().nth(i).expect("");
           let value_b = set_b.clone().into_iter().nth(j).expect("");
           if value_a > value_b {
-            relation[j][i] = true;
+            println!("({}, {})", value_a, value_b);
+            relation[i][j] = true;
           }
         }
         "equals" => {
           let value_a = set_a.clone().into_iter().nth(i).expect("");
           let value_b = set_b.clone().into_iter().nth(j).expect("");
           if value_a == value_b {
-            relation[j][i] = true;
+            println!("({}, {})", value_a, value_b);
+            relation[i][j] = true;
           }
         }
         "exponential" => {
           let value_a = set_a.clone().into_iter().nth(i).expect("");
           let value_b = set_b.clone().into_iter().nth(j).expect("");
           if value_a*value_a == value_b {
-            relation[j][i] = true;
+            println!("({}, {})", value_a, value_b);
+            relation[i][j] = true;
           }
         }
         "sqrt" => {
           let value_a = set_a.clone().into_iter().nth(i).expect("");
           let value_b = set_b.clone().into_iter().nth(j).expect("");
           if (value_a as f64).sqrt() == (value_b as f64) {
-            relation[j][i] = true;
+            println!("({}, {})", value_a, value_b);
+            relation[i][j] = true;
           }
         }
         "relation" => {
@@ -196,7 +201,8 @@ fn get_relation_matrix(set_a: IndexSet<i32>, set_b: IndexSet<i32>, operation:&st
           for k in 0..inputed_relation.len(){
             let item = inputed_relation.clone().into_iter().nth(k).expect("");
             if value_a == item.0 && value_b == item.1 {
-              relation[j][i] = true;
+              println!("({}, {})", value_a, value_b);
+              relation[i][j] = true;
             }
           }
         }
@@ -210,9 +216,8 @@ fn get_relation_matrix(set_a: IndexSet<i32>, set_b: IndexSet<i32>, operation:&st
 fn is_functional(relation_matrix: Vec<Vec<bool>>) -> bool {
   for i in 0..relation_matrix.len() {
     let mut counter = 0;
-    let row = relation_matrix.clone().into_iter().nth(i).expect("invalid row");
-    for j in 0..row.len() {
-      let value = row.clone().into_iter().nth(j).expect("Value doesn't exists");
+    for j in 0..relation_matrix[0].len() {
+      let value = relation_matrix[i][j];
       if value {
         counter += 1;
       }
@@ -225,16 +230,15 @@ fn is_functional(relation_matrix: Vec<Vec<bool>>) -> bool {
 }
 
 fn is_injector(relation_matrix: Vec<Vec<bool>>) -> bool {
-  for i in 0..relation_matrix.len() {
+  for i in 0..relation_matrix[0].len() {
     let mut counter = 0;
-    let row = relation_matrix.clone().into_iter().nth(i).expect("invalid row");
-    for j in 0..row.len() {
-      let value = row.clone().into_iter().nth(j).expect("Value doesn't exists");
+    for j in 0..relation_matrix.len() {
+      let value = relation_matrix[j][i];
       if value {
         counter += 1;
-        if counter > 1 {
-            return false;
-        }
+      }
+      if counter > 1 {
+        return false;
       }
     }
   }
@@ -244,9 +248,8 @@ true
 fn is_total(relation_matrix: Vec<Vec<bool>>) -> bool {
   for i in 0..relation_matrix.len() {
     let mut counter = 0;
-    let row = relation_matrix.clone().into_iter().nth(i).expect("invalid row");
-    for j in 0..row.len() {
-      let value = row.clone().into_iter().nth(j).expect("Value doesn't exists");
+    for j in 0..relation_matrix[0].len() {
+      let value = relation_matrix[i][j];
       if value {
         counter += 1;
       }
@@ -259,16 +262,15 @@ fn is_total(relation_matrix: Vec<Vec<bool>>) -> bool {
 }
 
 fn is_surjective(relation_matrix: Vec<Vec<bool>>) -> bool {
-  for i in 0..relation_matrix.len() {
+  for i in 0..relation_matrix[0].len() {
     let mut counter = 0;
-    let row = relation_matrix.clone().into_iter().nth(i).expect("invalid row");
-    for j in 0..row.len() {
-      let value = row.clone().into_iter().nth(j).expect("Value doesn't exists");
+    for j in 0..relation_matrix.len() {
+      let value = relation_matrix[j][i];
       if value {
         counter += 1;
-        if counter < 1 {
-            return false;
-        }
+      }
+      if counter < 1 {
+        return false;
       }
     }
   }
